@@ -3,30 +3,22 @@ require 'getoptlong'
 
 class Option
 
-    attr_accessor :short
-    attr_accessor :long
-    attr_accessor :value
+    attr_reader :short, :long, :argcount, :value
 
-    def initialize(short=nil, long=nil, value=false)
-        @short = short
-        @long = long
-        @value = value
+    def initialize(short=nil, long=nil, argcount=0, value=false)
+        @short, @long, @argcount, @value = short, long, argcount, value
     end
 
-    def is_flag
-        if @short
-            return !(@short.end_with(':'))
-        elsif @long
-            return !(@long.end_with('='))
-        end
+    def getopt
+        [short, long, argcount]
     end
 
     def name
-        variabalize((@long or @short).sub(':', '').sub('=', ''))
+        long or short
     end
 
     def to_s
-        "Option.new(#{@short}, #{@long}, #{@value})"
+        "Option.new(#{@short}, #{@long}, #{@argcount}, #{@value})"
     end
 
     def == other
@@ -37,27 +29,24 @@ end
 
 
 def option parse
-    is_flag = true
-    short, long, value = nil, nil, false
+    short, long, argcount, value = nil, nil, 0, false
     split = parse.strip.split('  ')
     options = split[0].sub(',', ' ').sub('=', ' ')
     description = split[1..-1] * ''
     for s in options.split
         if s.start_with? '--'
-            long = s[2..-1]
+            long = s
         elsif s.start_with? '-'
-            short = s[1..-1]
+            short = s
         else
-            is_flag = false
+            argcount = 1
         end
     end
-    if not is_flag
+    if argcount == 1
         matched = description.scan(/\[default: (.*)\]/)[0]
         value = matched ? matched[0] : false
-        short = short ? short + ':' : nil
-        long = long ? long + '=' : nil
     end
-    Option.new(short, long, value)
+    Option.new(short, long, argcount, value)
 end
 
 
@@ -96,29 +85,29 @@ if __FILE__ == $0
         print cond ? '.' : 'F'
     end
 
-    assert option('-h') == Option.new('h', nil)
-    assert option('--help') == Option.new(nil, 'help')
-    assert option('-h --help') == Option.new('h', 'help')
-    assert option('-h, --help') == Option.new('h', 'help')
+    assert option('-h') == Option.new('-h', nil)
+    assert option('--help') == Option.new(nil, '--help')
+    assert option('-h --help') == Option.new('-h', '--help')
+    assert option('-h, --help') == Option.new('-h', '--help')
 
-    assert option('-h TOPIC') == Option.new('h:', nil)
-    assert option('--help TOPIC') == Option.new(nil, 'help=')
-    assert option('-h TOPIC --help TOPIC') == Option.new('h:', 'help=')
-    assert option('-h TOPIC, --help TOPIC') == Option.new('h:', 'help=')
-    assert option('-h TOPIC, --help=TOPIC') == Option.new('h:', 'help=')
+    assert option('-h TOPIC') == Option.new('-h', nil, 1)
+    assert option('--help TOPIC') == Option.new(nil, '--help', 1)
+    assert option('-h TOPIC --help TOPIC') == Option.new('-h', '--help', 1)
+    assert option('-h TOPIC, --help TOPIC') == Option.new('-h', '--help', 1)
+    assert option('-h TOPIC, --help=TOPIC') == Option.new('-h', '--help', 1)
 
-    assert option('-h  Description...') == Option.new('h', nil)
-    assert option('-h --help  Description...') == Option.new('h', 'help')
-    assert option('-h TOPIC  Description...') == Option.new('h:', nil)
+    assert option('-h  Description...') == Option.new('-h', nil)
+    assert option('-h --help  Description...') == Option.new('-h', '--help')
+    assert option('-h TOPIC  Description...') == Option.new('-h', nil, 1)
 
-    assert option('    -h') == Option.new('h', nil)
+    assert option('    -h') == Option.new('-h', nil)
 
     assert option('-h TOPIC  Descripton... [default: 2]') ==
-               Option.new('h:', nil, '2')
+               Option.new('-h', nil, 1, '2')
     assert option('-h TOPIC  Descripton... [default: topic-1]') ==
-               Option.new('h:', nil, 'topic-1')
+               Option.new('-h', nil, 1, 'topic-1')
     assert option('--help=TOPIC  ... [default: 3.14]') ==
-               Option.new(nil, 'help=', '3.14')
+               Option.new(nil, '--help', 1, '3.14')
     assert option('-h, --help=DIR  ... [default: ./]') ==
-               Option.new('h:', 'help=', "./")
+               Option.new('-h', '--help', 1, "./")
 end
