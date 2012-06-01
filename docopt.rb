@@ -10,19 +10,15 @@ class Option
     end
 
     def getopt
-        [short, long, argcount].compact
+        [@long, @short, @argcount].compact
     end
 
-    def name
-        long or short
-    end
-
-    def to_s
+    def inspect
         "Option.new(#{@short}, #{@long}, #{@argcount}, #{@value})"
     end
 
     def == other
-        self.to_s == other.to_s
+        self.inspect == other.inspect
     end
 
 end
@@ -50,33 +46,14 @@ end
 
 
 def docopt(doc, argv=ARGV, help=true, version=nil)
-#    #docopts = [option('-' + s) for s in re.split('^ *-|\n *-', doc)[1:]]
-
-opts = GetoptLong.new(
-  [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
-  [ '--repeat', '-n', GetoptLong::REQUIRED_ARGUMENT ]
-)
-#    try:
-#        getopts, args = gnu_getopt(args,
-#                            ''.join([d.short for d in docopts if d.short]),
-#                            [d.long for d in docopts if d.long])
-#    except GetoptError as e:
-#        exit(e.msg)
-#    for k, v in getopts:
-#        for o in docopts:
-#            if k in o.forms:
-#                o.value = True if o.is_flag else argument_eval(v)
-#            end
-#            if help and k in ('-h', '--help'):
-#                exit(doc.strip())
-#            end
-#            if version is not None and k == '--version':
-#                exit(version)
-#            end
-#        end
-#    end
-#    Options.new(**dict([(o.name, o.value) for o in docopts])), args
+    docopts = []
+    doc.split(/^ *-|\n *-/)[1..-1].each do |s|
+        docopts += [option('-' + s).getopt]
+    end
+    puts 'docopts>', docopts.inspect
+    return GetoptLong.new(*docopts)
 end
+
 
 if __FILE__ == $0
 
@@ -109,4 +86,5 @@ if __FILE__ == $0
                Option.new(nil, '--help', 1, '3.14')
     assert option('-h, --help=DIR  ... [default: ./]') ==
                Option.new('-h', '--help', 1, "./")
+
 end
