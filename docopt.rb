@@ -10,7 +10,7 @@ class Option
     end
 
     def getopt
-        [short, long, argcount]
+        [short, long, argcount].compact
     end
 
     def name
@@ -30,9 +30,8 @@ end
 
 def option parse
     short, long, argcount, value = nil, nil, 0, false
-    split = parse.strip.split('  ')
-    options = split[0].sub(',', ' ').sub('=', ' ')
-    description = split[1..-1] * ''
+    options, _, description = parse.strip.partition('  ')
+    options = options.sub(',', ' ').sub('=', ' ')
     for s in options.split
         if s.start_with? '--'
             long = s
@@ -50,13 +49,13 @@ def option parse
 end
 
 
-#def docopt(doc, argv=ARGV, help=true, version=nil)
-#    docopts = [option('-' + s) for s in re.split('^ *-|\n *-', doc)[1:]]
-#
-#opts = GetoptLong.new(
-#  [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
-#  [ '--repeat', '-n', GetoptLong::REQUIRED_ARGUMENT ]
-#)
+def docopt(doc, argv=ARGV, help=true, version=nil)
+#    #docopts = [option('-' + s) for s in re.split('^ *-|\n *-', doc)[1:]]
+
+opts = GetoptLong.new(
+  [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
+  [ '--repeat', '-n', GetoptLong::REQUIRED_ARGUMENT ]
+)
 #    try:
 #        getopts, args = gnu_getopt(args,
 #                            ''.join([d.short for d in docopts if d.short]),
@@ -77,7 +76,7 @@ end
 #        end
 #    end
 #    Options.new(**dict([(o.name, o.value) for o in docopts])), args
-#end
+end
 
 if __FILE__ == $0
 
