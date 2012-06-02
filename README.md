@@ -107,7 +107,7 @@ The **return** value is a hash with option values
 
 You can access positional arguments in `ARGV`.
 
-`doc`-string format for your usage-message
+`doc` string format for your usage-message
 ===============================================================================
 
 The main idea behind `docopt` is that a good usage-message (that describes
@@ -141,7 +141,7 @@ lines are valid, however you are recommended to stick to a single style.
         --stdout  Use stdout.  # GOOD, 2 spaces
 
 - If you want to set a default value for an option with an argument, put it
-into the option description, in form `[default: <your-default-value>]`.
+into the option description, in form `[default: <my-default-value>]`.
 
         -i INSTANCE      Instance of something [default: 1]
         --coefficient=K  The K coefficient [default: 2.95]
