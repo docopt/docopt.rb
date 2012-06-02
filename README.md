@@ -55,7 +55,7 @@ API `require 'docopt'`
 
 ###`options = docopt(doc, version=nil, help=true)`
 
-`docopt` takes 1 required and 3 optional arguments:
+`docopt` takes 1 required and 2 optional arguments:
 
 - `doc` should be a string that
 describes **options** in a human-readable format, that will be parsed to create
@@ -74,7 +74,7 @@ section. Here is a quick example of such a string:
 print the usage-message (supplied as `doc`) in case `-h` or `--help` options
 are encountered. After showing the usage-message, the program will terminate.
 If you want to handle `-h` or `--help` options manually (as all other options),
-set `help=False`.
+set `help=false`.
 
 - `version`, by default `nil`, is an optional argument that specifies the
 version of your program. If supplied, then, if the parser encounters
@@ -107,7 +107,7 @@ The **return** value is a hash with option values
 
 You can access positional arguments in `ARGV`.
 
-Docstring format for your usage-message
+`doc`-string format for your usage-message
 ===============================================================================
 
 The main idea behind `docopt` is that a good usage-message (that describes
@@ -154,10 +154,19 @@ Something missing? Help porting [docopt](http://docopt.org/) to Ruby!
 Compatibility notice:
 ===============================================================================
 
-In order to maintain your programs compatibility with future versions
-of docopt.rb (as porting process continues) you are recommended to
+In order to maintain your program's compatibility with future versions
+of `docopt.rb` (as porting more features continues) you are recommended to
 keep the following in the begining of `doc` argument:
 
-    Usage: your_program_name.rb  [options] <arguments>...
+    Usage: my_program.rb [options] <arguments>...
 
-where you are free to change `your_program_name` and `arguments` name.
+or
+
+    Usage: my_program.rb [options] <argument>
+
+or
+
+    Usage: my_program.rb [options]
+
+(followed by an empty line), where you are free to change `my_program.rb`
+and `argument(s)` name inside of `<...>`.
