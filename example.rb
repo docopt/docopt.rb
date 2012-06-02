@@ -1,4 +1,4 @@
-doc = "Usage: example.py [options] arguments
+doc = "Usage: example.py [options] <arguments>...
 
 Options:
   -h --help            show this help message and exit
