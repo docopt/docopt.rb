@@ -25,9 +25,9 @@ end
 
 
 def option parse
-    short, long, argcount, value = nil, nil, 0, false
     options, _, description = parse.strip.partition('  ')
     options = options.sub(',', ' ').sub('=', ' ')
+    short, long, argcount, value = nil, nil, 0, false
     for s in options.split
         if s.start_with? '--'
             long = s
@@ -45,12 +45,39 @@ def option parse
 end
 
 
-def docopt(doc, argv=ARGV, help=true, version=nil)
+class MyHash < Hash
+    def inspect
+        "{#{self.to_a.sort.map {|i| "%p=>%p" % i}.join(",\n ")}}"
+    end
+end
+
+
+def docopt(doc, version=nil, help=true)
+    ret = MyHash.new
     docopts = []
     doc.split(/^ *-|\n *-/)[1..-1].each do |s|
-        docopts += [option('-' + s).getopt]
+        docopt = option('-' + s)
+        docopts += [docopt]
+        ret[(docopt.long or docopt.short)] = docopt.value
     end
-    return GetoptLong.new(*docopts)
+    begin
+        GetoptLong.new(*docopts.map {|e| e.getopt}).each do |opt, arg|
+            if help and (opt == '--help' or opt == '-h')
+                puts doc.strip
+                exit
+            elsif version and opt == '--version'
+                puts version
+                exit
+            elsif (docopts.select {|d|(d.long or d.short)==opt})[0].argcount==0
+                ret[opt] = true
+            else
+                ret[opt] = arg
+            end
+        end
+    rescue
+        exit 1
+    end
+    ret
 end
 
 

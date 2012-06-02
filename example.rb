@@ -1,4 +1,4 @@
-"""Usage: example.py [options] arguments
+doc = "Usage: example.py [options] arguments
 
 Options:
   -h --help            show this help message and exit
@@ -18,18 +18,13 @@ Options:
                        error and set exit code to 1 if total is not null
   --benchmark          measure processing speed
   --testsuite=dir      run regression tests from dir
-  --doctest            run doctest on myself
+  --doctest            run doctest on myself"
 
-"""
-from docopt import docopt
-
-
-def main(options, arguments):
-    print(options)
-    print('Arguments: %s' % arguments)
+require 'docopt'
 
 
-if __name__ == '__main__':
-    # parse options based on docstring above
-    options, arguments = docopt(__doc__, version='1.0.0rc2')
-    main(options, arguments)
+if __FILE__ == $0
+    options = docopt(doc, '1.0.0')  # parse options based on doc above
+    puts options.inspect
+    puts ARGV.inspect
+end
