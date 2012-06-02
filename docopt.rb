@@ -50,7 +50,6 @@ def docopt(doc, argv=ARGV, help=true, version=nil)
     doc.split(/^ *-|\n *-/)[1..-1].each do |s|
         docopts += [option('-' + s).getopt]
     end
-    puts 'docopts>', docopts.inspect
     return GetoptLong.new(*docopts)
 end
 
