@@ -1,4 +1,4 @@
-doc = "Usage: example.py [options] <arguments>...
+$DOC = "Usage: example.py [options] <arguments>...
 
 Options:
   -h --help            show this help message and exit
@@ -9,7 +9,7 @@ Options:
   --exclude=patterns   exclude files or directories which match these comma
                        separated patterns [default: .svn,CVS,.bzr,.hg,.git]
   --filename=patterns  when parsing directories, only check filenames matching
-                       these comma separated patterns [default: *.py]
+                       these comma separated patterns [default: *.rb]
   --select=errors      select errors and warnings (e.g. E,W6)
   --ignore=errors      skip errors and warnings (e.g. E4,W)
   --show-source        show source code for each error
@@ -24,7 +24,7 @@ require 'docopt'
 
 
 if __FILE__ == $0
-    options = docopt(doc, '1.0.0')  # parse options based on doc above
+    options = Docopt($DOC, '1.0.0')  # parse options based on doc above
     puts options.inspect
     puts ARGV.inspect
 end
