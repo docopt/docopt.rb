@@ -24,7 +24,7 @@ require 'docopt'
 
 
 if __FILE__ == $0
-    options = docopt($DOC, '1.0.0')  # parse options based on doc above
+    options = Docopt($DOC, '1.0.0')  # parse options based on doc above
     puts options.inspect
     puts ARGV.inspect
 end

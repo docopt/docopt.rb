@@ -41,21 +41,21 @@ require 'docopt'
 
 
 if __FILE__ == $0
-    options = docopt(doc, '1.0.0')  # parse options based on doc above
+    options = Docopt(doc, '1.0.0')  # parse options based on doc above
     puts options.inspect
     puts ARGV.inspect
 end
 ```
 
 Hell yeah! The option parser is generated based on `doc` string above, that you
-pass to the `docopt` function.
+pass to the `Docopt` function.
 
 API `require 'docopt'`
 ===============================================================================
 
-###`options = docopt(doc, version=nil, help=true)`
+###`options = Docopt(doc, version=nil, help=true)`
 
-`docopt` takes 1 required and 2 optional arguments:
+`Docopt` takes 1 required and 2 optional arguments:
 
 - `doc` should be a string that
 describes **options** in a human-readable format, that will be parsed to create
@@ -93,7 +93,7 @@ doc = "Options:
   --verbose
   -o FILE  Output file [default: out.txt]"
   
-options = docopt(doc)
+options = Docopt(doc)
 
 puts options.inspect
 # --verbose=nil
@@ -107,7 +107,7 @@ doc = "Options:
   -v, --verbose  Verbose output [default: true]
   -o FILE  Output file [default: out.txt]"
   
-options = docopt(doc)
+options = Docopt(doc)
 
 # The following are equivilant:
 

@@ -96,7 +96,7 @@ class Docopt
 end
 
 # Convenience method for Docopt.parse
-def docopt *args
+def Docopt *args
   Docopt.new *args
 end
 
@@ -108,7 +108,7 @@ if __FILE__ == $0
     def setup
       $LOAD_PATH << File.dirname(__FILE__)
       load 'example.rb'
-      @docopt = docopt($DOC)
+      @docopt = Docopt($DOC)
     end
     
     def test_size
