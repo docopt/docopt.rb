@@ -45,15 +45,8 @@ def option parse
 end
 
 
-class MyHash < Hash
-    def inspect
-        "{#{self.to_a.sort.map {|i| "%p=>%p" % i}.join(",\n ")}}"
-    end
-end
-
-
 def docopt(doc, version=nil, help=true)
-    ret = MyHash.new
+    ret = {}
     docopts = []
     doc.split(/^ *-|\n *-/)[1..-1].each do |s|
         docopt = option('-' + s)
