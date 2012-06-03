@@ -86,24 +86,38 @@ Note, when `docopt` is set to automatically handle `-h`, `--help` and
 `--version` options, you still need to mention them in the options description
 (`doc`) for your users to know about them.
 
-The **return** value is a hash with option values
-(giving long options precedence), e.g:
+The **return** value is an instance of the ```Docopt``` class:
 
-    {"--benchmark"=>true,
-     "--count"=>true,
-     "--doctest"=>false,
-     "--exclude"=>".svn,CVS,.bzr,.hg,.git",
-     "--filename"=>"*.rb",
-     "--help"=>false,
-     "--ignore"=>false,
-     "--quiet"=>false,
-     "--repeat"=>false,
-     "--select"=>"*.rb",
-     "--show-source"=>true,
-     "--statistics"=>true,
-     "--testsuite"=>false,
-     "--verbose"=>true,
-     "--version"=>false}
+```ruby
+doc = "Options:
+  --verbose
+  -o FILE  Output file [default: out.txt]"
+  
+options = docopt(doc)
+
+puts options.inspect
+# --verbose=nil
+# -o="out.txt"
+```
+
+You can access the values of options like a hash:
+
+```
+doc = "Options:
+  -v, --verbose  Verbose output [default: true]
+  -o FILE  Output file [default: out.txt]"
+  
+options = docopt(doc)
+
+# The following are equivilant:
+
+puts options['-v']
+puts options['--verbose']
+puts options[:v]
+puts options[:verbose]
+
+
+```
 
 You can access positional arguments in `ARGV`.
 
