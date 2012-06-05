@@ -50,10 +50,21 @@ end
 Hell yeah! The option parser is generated based on `doc` string above, that you
 pass to the `Docopt` function.
 
-API `require 'docopt'`
-===============================================================================
+```ruby
+require 'docopt'
+doc = "Usage: your_program.rb [options]
 
-###`options = Docopt(doc, version=nil, help=true)`
+  -h --help     Show this.
+  -v --verbose  Print more text.
+  --quiet       Print less text.
+  -o FILE       Specify output file [default: ./test.txt]"
+
+options = Docopt(doc, version=nil, help=true)`
+
+options['--help'] # returns true or false depending on option given
+
+```
+
 
 `Docopt` takes 1 required and 2 optional arguments:
 
