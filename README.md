@@ -1,7 +1,7 @@
 `docopt` – command line option parser, that will make you smile
 ===============================================================================
 
-Help porting [docopt](http://docopt.org/) to Ruby!
+[![Build Status](https://secure.travis-ci.org/alexspeller/docopt.png?branch=master)](http://travis-ci.org/alexspeller/docopt)
 
 Isn't it awesome how `optparse` and other option parsers generate help and
 usage-messages based on your code?!
