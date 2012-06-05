@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = "docopt"
-  s.version = "0.0.1"
+  s.version = "0.0.2"
   s.required_ruby_version     = '>= 1.9.2'
   s.required_rubygems_version = ">= 1.8.11"
   s.platform    = Gem::Platform::RUBY
