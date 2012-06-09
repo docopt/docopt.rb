@@ -29,6 +29,14 @@ class Docopt
       end
     end
     
+    def set_value val
+      if argcount.zero?
+        @value = true
+      else
+        @value = val
+      end
+    end
+    
     def synonyms
       ([short, long] + symbols).compact
     end
@@ -59,12 +67,15 @@ class Docopt
     end
     
     GetoptLong.new(*docopts.map(&:getopt)).each do |opt, arg|
+      docopt_option = option(opt)
       if help and (opt == '--help' or opt == '-h')
         puts doc.strip
         exit
       elsif version and opt == '--version'
         puts version
         exit
+      else
+        option.set_value arg
       end
     end
   end
@@ -76,7 +87,7 @@ class Docopt
     raise UnknownOptionError.new("#{name} option not found") unless option
     option
   end
-  
+
 
   
   def value name
