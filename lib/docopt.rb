@@ -75,7 +75,7 @@ class Docopt
         puts version
         exit
       else
-        option.set_value arg
+        docopt_option.set_value arg
       end
     end
   end
