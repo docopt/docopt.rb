@@ -698,6 +698,7 @@ module Docopt
 
       rescue Exit => ex
         puts ex.message.rstrip + "\n"
+        exit
       end
     end
   end
