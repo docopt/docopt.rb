@@ -11,11 +11,11 @@ module Docopt
     end
 
     def self.set_usage(usage)
-      @@usage = usage
+      @@usage = usage ? usage : ''
     end
 
     def initialize(message='')
-      super(message + "\n" + @@usage)
+      super((message && message != '' ? (message + "\n") : '') + @@usage)
     end
   end
 
@@ -594,10 +594,10 @@ module Docopt
     def printable_usage(doc)
       usage_split = doc.split(/([Uu][Ss][Aa][Gg][Ee]:)/)
       if usage_split.count < 3
-        raise DocoptLanguageError('"usage:" (case-insensitive) not found.')
+        raise DocoptLanguageError, '"usage:" (case-insensitive) not found.'
       end
       if usage_split.count > 3
-        raise DocoptLanguageError('More than one "usage:" (case-insensitive).')
+        raise DocoptLanguageError, 'More than one "usage:" (case-insensitive).'
       end
       return usage_split[1..-1].join().split(/\n\s*\n/)[0].strip
     end
@@ -661,37 +661,49 @@ module Docopt
 
       if help and ofound
         Exit.set_usage(nil)
-        raise Exit(doc.strip)
+        raise Exit, doc.strip
       end
       if version and vfound
         Exit.set_usage(nil)
-        raise Exit(version)
+        raise Exit, version
       end
     end
 
-    def docopt(doc, argv=nil, help=true, version=nil)
-      argv = ARGV if !argv
+    def docopt(doc, params={})
+      begin
+        default = { :version => nil, :argv => nil, :help => true }
+        params = default.merge(params)
+        params[:argv] = ARGV if !params[:argv]
 
-      Exit.set_usage(printable_usage(doc))
-      options = parse_doc_options(doc)
-      pattern = parse_pattern(formal_usage(Exit.usage), options)
-      argv = parse_argv(argv, options)
-      extras(help, version, argv, doc)
+        Exit.set_usage(printable_usage(doc))
+        options = parse_doc_options(doc)
+        pattern = parse_pattern(formal_usage(Exit.usage), options)
+        argv = parse_argv(params[:argv], options)
+        extras(params[:help], params[:version], argv, doc)
 
-      matched, left, collected = pattern.fix().match(argv)
-      collected = [] if !collected 
+        matched, left, collected = pattern.fix().match(argv)
+        collected = [] if !collected 
 
-      if matched and (!left or left.count == 0)
-        ret = {}
-        for a in pattern.flat + options + collected
-          name = a.name
-          if name and name != ''
-            ret[name] = a.value
+        if matched and (!left or left.count == 0)
+          ret = {}
+          for a in pattern.flat + options + collected
+            name = a.name
+            if name and name != ''
+              ret[name] = a.value
+            end
           end
+          return ret
         end
-        return ret
+        raise Exit
+
+      rescue Exit => ex
+        puts ex.message.rstrip + "\n"
       end
-      raise Exit
     end
   end
+end
+
+# Convenience method for Docopt.docopt
+def Docopt *args
+  Docopt.docopt *args
 end
