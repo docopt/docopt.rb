@@ -1,8 +1,3 @@
-def dump(*args)
-  puts ::Docopt::dump_patterns(*args)
-end
-
-
 module Docopt
   class DocoptLanguageError < SyntaxError
   end
@@ -34,6 +29,10 @@ module Docopt
 
     def to_str
       return self.inspect
+    end
+
+    def dump
+      puts ::Docopt::dump_patterns(self)
     end
 
     def fix
@@ -147,10 +146,8 @@ module Docopt
       left_.slice!(pos)
 
       same_name = collected.select { |a| a.name == self.name }
-
       if @value.is_a? Array or @value.is_a? Integer
         increment = @value.is_a?(Integer) ? 1 : [match.value]
-
         if same_name.count == 0
           match.value = increment
           return true, left_, collected + [match]
@@ -196,7 +193,6 @@ module Docopt
           return n, Argument.new(self.name, p.value)
         end
       }
-
       return nil, nil
     end
   end
@@ -210,7 +206,7 @@ module Docopt
     def single_match(left)
       left.each_with_index { |p, n|
         if p.class == Argument
-          if p.value = self.name
+          if p.value == self.name
             return n, Command.new(self.name, true)
           else
             break
@@ -440,17 +436,18 @@ module Docopt
       raw = tokens.move()[1..-1]
       parsed = []
       while raw != ''
-        opt = options.select { |o| o.short and o.short.sub(/^-+/, '').start_with?(raw[0]) }
+        first = raw.slice(0, 1)
+        opt = options.select { |o| o.short and o.short.sub(/^-+/, '').start_with?(first) }
 
         if opt.count > 1
-          raise tokens.error, "-#{raw[0]} is specified ambiguously #{opt.count} times"
+          raise tokens.error, "-#{first} is specified ambiguously #{opt.count} times"
         end
 
         if opt.count < 1
           if tokens.error == Exit
-            raise tokens.error, "-#{raw[0]} is not recognized"
+            raise tokens.error, "-#{first} is not recognized"
           else
-            o = Option.new('-' + raw[0], nil)
+            o = Option.new('-' + first, nil)
             options << o
             parsed << o
             raw = raw[1..-1]
@@ -466,7 +463,7 @@ module Docopt
         else
           if raw == ''
             if tokens.current() == nil
-              raise tokens.error, "-#{opt.short[0]} requires argument"
+              raise tokens.error, "-#{opt.short.slice(0, 1)} requires argument"
             end
             raw = tokens.move()
           end
@@ -626,11 +623,15 @@ module Docopt
       ws = " " * 4 * indent
       out = ""
       if pattern.class == Array
-        out << ws << "[\n"
-        for p in pattern
-          out << dump_patterns(p, indent+1).rstrip << "\n"
+        if pattern.count > 0
+          out << ws << "[\n"
+          for p in pattern
+            out << dump_patterns(p, indent+1).rstrip << "\n"
+          end
+          out << ws << "]\n"
+        else
+          out << ws << "[]\n"
         end
-        out << ws << "]\n"
 
       elsif pattern.class.ancestors.include?(ParentPattern)
         out << ws << pattern.class.name << "(\n"

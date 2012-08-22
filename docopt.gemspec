@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.name = "docopt"
   s.version = "0.5.0"
   s.required_ruby_version     = '>= 1.8.7'
-  s.required_rubygems_version = ">= 1.8.11"
+  s.required_rubygems_version = ">= 1.3.6"
   s.platform    = Gem::Platform::RUBY
   s.require_path = 'lib'
   s.license     = 'MIT'
