@@ -4,6 +4,7 @@ module Docopt
 
 
   class Exit < RuntimeError
+    # TODO: try and derive this from SystemExit
     @@usage = ''
 
     def self.usage
