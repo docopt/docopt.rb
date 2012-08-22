@@ -20,11 +20,7 @@ Options:
   --testsuite=dir      run regression tests from dir
   --doctest            run doctest on myself"
 
-require 'rubygems'
-require 'yaml'
-
 require './lib/docopt'
-
 
 if __FILE__ == $0
     options = Docopt($DOC, { :version => '1.0.0' })  # parse options based on doc above

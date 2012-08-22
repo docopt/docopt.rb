@@ -37,9 +37,8 @@ Options:
 
 require 'docopt'
 
-
 if __FILE__ == $0
-    options = Docopt(doc, '1.0.0')  # parse options based on doc above
+    options = Docopt(doc, {:version => '1.0.0'})
     puts options.inspect
     puts ARGV.inspect
 end
