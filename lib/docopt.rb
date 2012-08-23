@@ -630,36 +630,30 @@ module Docopt
     end
 
     def docopt(doc, params={})
-      begin
-        default = { :version => nil, :argv => nil, :help => true }
-        params = default.merge(params)
-        params[:argv] = ARGV if !params[:argv]
+      default = { :version => nil, :argv => nil, :help => true }
+      params = default.merge(params)
+      params[:argv] = ARGV if !params[:argv]
 
-        Exit.set_usage(printable_usage(doc))
-        options = parse_doc_options(doc)
-        pattern = parse_pattern(formal_usage(Exit.usage), options)
-        argv = parse_argv(params[:argv], options)
-        extras(params[:help], params[:version], argv, doc)
+      Exit.set_usage(printable_usage(doc))
+      options = parse_doc_options(doc)
+      pattern = parse_pattern(formal_usage(Exit.usage), options)
+      argv = parse_argv(params[:argv], options)
+      extras(params[:help], params[:version], argv, doc)
 
-        matched, left, collected = pattern.fix().match(argv)
-        collected = [] if !collected 
+      matched, left, collected = pattern.fix().match(argv)
+      collected = [] if !collected 
 
-        if matched and (!left or left.count == 0)
-          ret = {}
-          for a in pattern.flat + options + collected
-            name = a.name
-            if name and name != ''
-              ret[name] = a.value
-            end
+      if matched and (!left or left.count == 0)
+        ret = {}
+        for a in pattern.flat + options + collected
+          name = a.name
+          if name and name != ''
+            ret[name] = a.value
           end
-          return ret
         end
-        raise Exit
-
-      rescue Exit => ex
-        puts ex.message.rstrip + "\n"
-        exit
+        return ret
       end
+      raise Exit
     end
   end
 end
