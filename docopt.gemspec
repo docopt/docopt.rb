@@ -59,14 +59,14 @@ Gem::Specification.new do |s|
   # = MANIFEST =
   s.files = %w[
     Gemfile
-    LICENSE-MIT
+    LICENSE
     README.md
     Rakefile
     docopt.gemspec
     example.rb
     lib/docopt.rb
     test/test_docopt.rb
-    testee.rb
+    test/testee.rb
   ]
   # = MANIFEST =
 
