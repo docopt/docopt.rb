@@ -660,8 +660,3 @@ module Docopt
     end
   end
 end
-
-# Convenience method for Docopt.docopt
-def Docopt *args
-  Docopt.docopt *args
-end
