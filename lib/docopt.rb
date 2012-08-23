@@ -633,7 +633,7 @@ module Docopt
     end
 
     def docopt(doc, params={})
-      default = { :version => nil, :argv => nil, :help => true }
+      default = {:version => nil, :argv => nil, :help => true}
       params = default.merge(params)
       params[:argv] = ARGV if !params[:argv]
 
@@ -644,7 +644,7 @@ module Docopt
       extras(params[:help], params[:version], argv, doc)
 
       matched, left, collected = pattern.fix().match(argv)
-      collected = [] if !collected 
+      collected ||= []
 
       if matched and (!left or left.count == 0)
         ret = {}
