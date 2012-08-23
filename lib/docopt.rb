@@ -6,9 +6,6 @@ module Docopt
   end
 
   class Exit < RuntimeError
-    # TODO: try and derive this from SystemExit
-    @@usage = ''
-
     def self.usage
       @@usage
     end
@@ -17,8 +14,12 @@ module Docopt
       @@usage = usage ? usage : ''
     end
 
+    def message
+      @@message
+    end
+
     def initialize(message='')
-      super((message && message != '' ? (message + "\n") : '') + @@usage)
+      @@message = ((message && message != '' ? (message + "\n") : '') + @@usage)
     end
   end
 
