@@ -4,7 +4,7 @@ require File.expand_path("../../lib/docopt.rb", __FILE__)
 require 'rubygems'
 require 'json'
 
-doc = $stdin.read
+doc = STDIN.read
 
 begin
   puts Docopt::docopt(doc).to_json
