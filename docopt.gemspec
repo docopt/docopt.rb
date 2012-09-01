@@ -63,7 +63,14 @@ Gem::Specification.new do |s|
     README.md
     Rakefile
     docopt.gemspec
-    example.rb
+    examples/any_options_example.rb
+    examples/calculator.rb
+    examples/counted_example.rb
+    examples/example_options.rb
+    examples/git_example.rb
+    examples/naval_fate.rb
+    examples/odd_even_example.rb
+    examples/quick_example.rb
     lib/docopt.rb
     test/test_docopt.rb
     test/testee.rb
