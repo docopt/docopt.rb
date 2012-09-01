@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   ## List the primary authors. If there are a bunch of authors, it's probably
   ## better to set the email to an email list or something. If you don't have
   ## a custom homepage, consider using your GitHub URL or the like.
-  s.authors = ["Blake Williams", "Vladimir Keleshev", "Alex Speller"]
+  s.authors = ["Blake Williams", "Vladimir Keleshev", "Alex Speller", "Nima Johari"]
   s.email = "code@shabbyrobe.org"
   s.homepage = "http://github.com/docopt/docopt.rb"
   s.license = 'MIT'
