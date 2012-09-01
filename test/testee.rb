@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
-require File.expand_path(File.dirname(__FILE__) + "/lib/docopt.rb")
+require File.expand_path("../../lib/docopt.rb", __FILE__)
 
-require 'rubygems'
 require 'json'
 
-doc = $stdin.read
+doc = STDIN.read
 
 begin
   puts Docopt::docopt(doc).to_json

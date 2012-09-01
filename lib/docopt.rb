@@ -1,12 +1,11 @@
 module Docopt
+  VERSION = '0.5.0'
+end
+module Docopt
   class DocoptLanguageError < SyntaxError
   end
 
-
   class Exit < RuntimeError
-    # TODO: try and derive this from SystemExit
-    @@usage = ''
-
     def self.usage
       @@usage
     end
@@ -15,11 +14,14 @@ module Docopt
       @@usage = usage ? usage : ''
     end
 
+    def message
+      @@message
+    end
+
     def initialize(message='')
-      super((message && message != '' ? (message + "\n") : '') + @@usage)
+      @@message = ((message && message != '' ? (message + "\n") : '') + @@usage)
     end
   end
-
 
   class Pattern
     attr_accessor :children
@@ -46,9 +48,7 @@ module Docopt
       if not instance_variable_defined?(:@children)
         return self
       end
-      if not uniq
-        uniq = self.flat.uniq 
-      end
+      uniq ||= flat.uniq
 
       @children.each_with_index do |c, i|
         if not c.instance_variable_defined?(:@children)
@@ -63,10 +63,8 @@ module Docopt
     end
 
     def fix_list_arguments
-      either = self.either.children.map { |c| c.children }
-
-      for case_ in either
-        for e in case_.select { |c| case_.count(c) > 1 }
+      either.children.map { |c| c.children }.each do |case_|
+        case_.select { |c| case_.count(c) > 1 }.each do |e|
           if e.class == Argument or (e.class == Option and e.argcount > 0)
             e.value = []
           end
@@ -92,7 +90,6 @@ module Docopt
           for c in either.children
             groups << [c] + children
           end
-
         elsif types.include?(Required)
           required = children.select { |c| c.class == Required }[0]
           children.slice!(children.index(required))
@@ -107,14 +104,14 @@ module Docopt
           oneormore = children.select { |c| c.class == OneOrMore }[0]
           children.slice!(children.index(oneormore))
           groups << (oneormore.children * 2) + children
-        
+
         else
           ret << children
         end
       end
 
-      args = ret.map { |e| Required.new(e) }
-      return Either.new(args)
+      args = ret.map { |e| Required.new(*e) }
+      return Either.new(*args)
     end
   end
 
@@ -128,19 +125,19 @@ module Docopt
     end
 
     def inspect()
-      return "<#{self.class.name}>(<#{self.name}>, <#{self.value}>)"
+      "#{self.class.name}(#{self.name}, #{self.value})"
     end
-    
+
     def flat
-      return [self]
+      [self]
     end
-    
+
 
     def match(left, collected=nil)
-      collected = [] if !collected
+      collected ||= []
       pos, match = self.single_match(left)
       if match == nil
-        return false, left, collected
+        return [false, left, collected]
       end
 
       left_ = left.dup
@@ -151,21 +148,19 @@ module Docopt
         increment = @value.is_a?(Integer) ? 1 : [match.value]
         if same_name.count == 0
           match.value = increment
-          return true, left_, collected + [match]
+          return [true, left_, collected + [match]]
         end
-
         same_name[0].value += increment
-        return true, left_, collected
+        return [true, left_, collected]
       end
-      return true, left_, collected + [match]
+      return [true, left_, collected + [match]]
     end
   end
-
 
   class ParentPattern < Pattern
     attr_accessor :children
 
-    def initialize(children)
+    def initialize(*children)
       @children = children
     end
 
@@ -179,33 +174,31 @@ module Docopt
     end
   end
 
-
   class Argument < ChildPattern
-    attr_accessor :argcount
 
-    def initialize(*args)
-      super(*args)
-      @argcount = 0
-    end
+    # def initialize(*args)
+    #   super(*args)
+    # end
 
     def single_match(left)
-      left.each_with_index { |p, n| 
+      left.each_with_index do |p, n|
         if p.class == Argument
-          return n, Argument.new(self.name, p.value)
+          return [n, Argument.new(self.name, p.value)]
         end
-      }
-      return nil, nil
+      end
+      return [nil, nil]
     end
   end
 
 
   class Command < Argument
     def initialize(name, value=false)
-      super(name, value)
+      @name = name
+      @value = value
     end
 
     def single_match(left)
-      left.each_with_index { |p, n|
+      left.each_with_index do |p, n|
         if p.class == Argument
           if p.value == self.name
             return n, Command.new(self.name, true)
@@ -213,9 +206,8 @@ module Docopt
             break
           end
         end
-      }
-
-      return nil, nil
+      end
+      return [nil, nil]
     end
   end
 
@@ -225,23 +217,24 @@ module Docopt
     attr_accessor :argcount
 
     def initialize(short=nil, long=nil, argcount=0, value=false)
-      unless argcount == 0 or argcount == 1
+      unless [0, 1].include? argcount
         raise RuntimeError
       end
 
       @short, @long = short, long
-      @argcount = argcount
-      
+      @argcount, @value = argcount, value
+
       if value == false and argcount > 0
-        value = nil
+        @value = nil
+      else
+        @value = value
       end
-      @value = value
     end
 
     def self.parse(option_description)
       short, long, argcount, value = nil, nil, 0, false
       options, _, description = option_description.strip.partition('  ')
-      
+
       options.gsub!(",", " ")
       options.gsub!("=", " ")
 
@@ -263,12 +256,12 @@ module Docopt
     end
 
     def single_match(left)
-      left.each_with_index { |p, n|
+      left.each_with_index do |p, n|
         if self.name == p.name
-          return n, p
+          return [n, p]
         end
-      }
-      return nil, nil
+      end
+      return [nil, nil]
     end
 
     def name
@@ -276,38 +269,35 @@ module Docopt
     end
 
     def inspect
-      return "#{self.class.name}('#{self.short}', '#{self.long}', #{self.argcount}, '#{self.value}')"
+      return "Option(#{self.short}, #{self.long}, #{self.argcount}, #{self.value})"
     end
   end
 
-
   class Required < ParentPattern
     def match(left, collected=nil)
-      collected = [] if !collected
+      collected ||= []
       l = left
       c = collected
 
       for p in self.children
         matched, l, c = p.match(l, c)
         if not matched
-          return false, left, collected
+          return [false, left, collected]
         end
       end
-      return true, l, c
+      return [true, l, c]
     end
   end
-
 
   class Optional < ParentPattern
     def match(left, collected=nil)
-      collected = [] if !collected
+      collected ||= []
       for p in self.children
         m, left, collected = p.match(left, collected)
       end
-      return true, left, collected
+      return [true, left, collected]
     end
   end
-
 
   class OneOrMore < ParentPattern
     def match(left, collected=nil)
@@ -315,8 +305,7 @@ module Docopt
         raise RuntimeError
       end
 
-      collected = [] if !collected
-
+      collected ||= []
       l = left
       c = collected
       l_ = nil
@@ -331,18 +320,16 @@ module Docopt
         end
         l_ = l
       end
-
       if times >= 1
-        return true, l, c
+        return [true, l, c]
       end
-      return false, left, collected
+      return [false, left, collected]
     end
   end
 
-
   class Either < ParentPattern
     def match(left, collected=nil)
-      collected = [] if !collected
+      collected ||= []
       outcomes = []
       for p in self.children
         matched, _, _ = outcome = p.match(left, collected)
@@ -351,14 +338,15 @@ module Docopt
         end
       end
 
-      if outcomes and outcomes.count > 0
-        ret = outcomes.min_by { |outcome| outcome[1] == nil ? 0 : outcome[1].count }
+      if outcomes.count > 0
+        ret = outcomes.min_by do |outcome|
+          outcome[1] == nil ? 0 : outcome[1].count
+        end
         return ret
       end
-      return false, left, collected
+      return [false, left, collected]
     end
   end
-
 
   class TokenStream < Array
     attr_reader :error
@@ -382,7 +370,6 @@ module Docopt
     end
   end
 
-
   class << self
     def parse_long(tokens, options)
       raw, eq, value = tokens.move().partition('=')
@@ -403,12 +390,10 @@ module Docopt
           return [o]
         end
       end
-
       if opt.count > 1
         ostr = opt.map { |o| o.long }.join(', ')
         raise tokens.error, "#{raw} is not a unique prefix: #{ostr}?"
       end
-
       o = opt[0]
       opt = Option.new(o.short, o.long, o.argcount, o.value)
       if opt.argcount == 1
@@ -418,7 +403,6 @@ module Docopt
           end
           value = tokens.move()
         end
-
       elsif value != nil
         raise tokens.error, "#{opt.name} must not have an argument"
       end
@@ -428,10 +412,8 @@ module Docopt
       else
         opt.value = value ? nil : false
       end
-
       return [opt]
     end
-
 
     def parse_shorts(tokens, options)
       raw = tokens.move()[1..-1]
@@ -478,7 +460,6 @@ module Docopt
         end
         parsed << opt
       end
-
       return parsed
     end
 
@@ -490,7 +471,7 @@ module Docopt
       if tokens.current() != nil
         raise tokens.error, "unexpected ending: #{tokens.join(" ")}"
       end
-      return Required.new(result)
+      return Required.new(*result)
     end
 
 
@@ -499,17 +480,15 @@ module Docopt
       if tokens.current() != '|'
         return seq
       end
-      result = seq.count > 1 ? [Required.new(seq)] : seq
+      result = seq.count > 1 ? [Required.new(*seq)] : seq
 
       while tokens.current() == '|'
         tokens.move()
         seq = parse_seq(tokens, options)
-        result += seq.count > 1 ? [Required.new(seq)] : seq
+        result += seq.count > 1 ? [Required.new(*seq)] : seq
       end
-
-      return result.count > 1 ? [Either.new(result)] : result
+      return result.count > 1 ? [Either.new(*result)] : result
     end
-
 
     def parse_seq(tokens, options)
       result = []
@@ -517,7 +496,7 @@ module Docopt
       while !stop.include?(tokens.current)
         atom = parse_atom(tokens, options)
         if tokens.current() == '...'
-          atom = [OneOrMore.new(atom)]
+          atom = [OneOrMore.new(*atom)]
           tokens.move()
         end
         result += atom
@@ -525,12 +504,11 @@ module Docopt
       return result
     end
 
-
     def parse_atom(tokens, options)
       token = tokens.current()
       result = []
 
-      if token == '(' or token == '['
+      if ['(' , '['].include? token
         tokens.move()
         if token == '('
           matching = ')'
@@ -539,31 +517,25 @@ module Docopt
           matching = ']'
           pattern = Optional
         end
-        result = pattern.new(parse_expr(tokens, options))
+        result = pattern.new(*parse_expr(tokens, options))
         if tokens.move() != matching
           raise tokens.error, "unmatched '#{token}'"
         end
-
         return [result]
-
       elsif token == 'options'
         tokens.move()
         return options
-
       elsif token.start_with?('--') and token != '--'
         return parse_long(tokens, options)
-
-      elsif token.start_with?('-') and token != '-' and token != '--'
+      elsif token.start_with?('-') and not ['-', '--'].include? token
         return parse_shorts(tokens, options)
 
       elsif token.start_with?('<') and token.end_with?('>') or token.upcase == token
         return [Argument.new(tokens.move())]
-
       else
         return [Command.new(tokens.move())]
       end
     end
-
 
     def parse_argv(source, options)
       tokens = TokenStream.new(source, Exit)
@@ -571,26 +543,20 @@ module Docopt
       while tokens.current() != nil
         if tokens.current() == '--'
           return parsed + tokens.map { |v| Argument.new(nil, v) }
-
         elsif tokens.current().start_with?('--')
           parsed += parse_long(tokens, options)
-
         elsif tokens.current().start_with?('-') and tokens.current() != '-'
           parsed += parse_shorts(tokens, options)
-
         else
           parsed << Argument.new(nil, tokens.move())
         end
       end
-
       return parsed
     end
-
 
     def parse_doc_options(doc)
       return doc.split(/^ *-|\n *-/)[1..-1].map { |s| Option.parse('-' + s) }
     end
-
 
     def printable_usage(doc)
       usage_split = doc.split(/([Uu][Ss][Aa][Gg][Ee]:)/)
@@ -603,10 +569,9 @@ module Docopt
       return usage_split[1..-1].join().split(/\n\s*\n/)[0].strip
     end
 
-
     def formal_usage(printable_usage)
       pu = printable_usage.split()[1..-1]  # split and drop "usage:"
-      
+
       ret = []
       for s in pu[1..-1]
         if s == pu[0]
@@ -618,7 +583,6 @@ module Docopt
 
       return '( ' + ret.join(' ') + ' )'
     end
-
 
     def dump_patterns(pattern, indent=0)
       ws = " " * 4 * indent
@@ -647,7 +611,6 @@ module Docopt
       return out
     end
 
-
     def extras(help, version, options, doc)
       ofound = false
       vfound = false
@@ -671,41 +634,30 @@ module Docopt
     end
 
     def docopt(doc, params={})
-      begin
-        default = { :version => nil, :argv => nil, :help => true }
-        params = default.merge(params)
-        params[:argv] = ARGV if !params[:argv]
+      default = {:version => nil, :argv => nil, :help => true}
+      params = default.merge(params)
+      params[:argv] = ARGV if !params[:argv]
 
-        Exit.set_usage(printable_usage(doc))
-        options = parse_doc_options(doc)
-        pattern = parse_pattern(formal_usage(Exit.usage), options)
-        argv = parse_argv(params[:argv], options)
-        extras(params[:help], params[:version], argv, doc)
+      Exit.set_usage(printable_usage(doc))
+      options = parse_doc_options(doc)
+      pattern = parse_pattern(formal_usage(Exit.usage), options)
+      argv = parse_argv(params[:argv], options)
+      extras(params[:help], params[:version], argv, doc)
 
-        matched, left, collected = pattern.fix().match(argv)
-        collected = [] if !collected 
+      matched, left, collected = pattern.fix().match(argv)
+      collected ||= []
 
-        if matched and (!left or left.count == 0)
-          ret = {}
-          for a in pattern.flat + options + collected
-            name = a.name
-            if name and name != ''
-              ret[name] = a.value
-            end
+      if matched and (!left or left.count == 0)
+        ret = {}
+        for a in pattern.flat + options + collected
+          name = a.name
+          if name and name != ''
+            ret[name] = a.value
           end
-          return ret
         end
-        raise Exit
-
-      rescue Exit => ex
-        puts ex.message.rstrip + "\n"
-        exit
+        return ret
       end
+      raise Exit
     end
   end
-end
-
-# Convenience method for Docopt.docopt
-def Docopt *args
-  Docopt.docopt *args
 end
