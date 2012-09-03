@@ -18,7 +18,7 @@ DOCOPT
 
 
 begin
-  puts Docopt::docopt(doc, version: '1.0.0rc2').to_s
+  puts Docopt::docopt(doc, :version => '1.0.0rc2').to_s
 rescue Docopt::Exit => e
   puts e.message
 end
