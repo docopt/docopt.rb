@@ -17,7 +17,7 @@ class DocoptTest < Test::Unit::TestCase
     EOS
   end
   def docopt(doc, argv = nil)
-    Docopt.docopt(doc, argv: (argv && argv.shellsplit))
+    Docopt.docopt(doc, :argv => (argv && argv.shellsplit))
   end
   %w[printable_usage  formal_usage  parse_doc_options  extras  dump_patterns  parse_argv  parse_atom  parse_seq  parse_expr  parse_pattern  parse_shorts  parse_long].each do |class_meth|
     class_eval <<-EOS
@@ -348,14 +348,14 @@ class DocoptTest < Test::Unit::TestCase
   def test_pattern_fix_identities_1
     pattern = Required(Argument('N'), Argument('N'))
     assert pattern.children[0] == pattern.children[1]
-    refute pattern.children[0].eql?(pattern.children[1])
+    assert_equal pattern.children[0].eql?(pattern.children[1]), false
     pattern.fix_identities()
     assert pattern.children[0].eql? pattern.children[1]
   end
   def test_pattern_fix_identities_2
     pattern = Required(Optional(Argument('X'), Argument('N')), Argument('N'))
     assert pattern.children[0].children[1] == pattern.children[1]
-    refute pattern.children[0].children[1].eql? pattern.children[1]
+    assert_equal(pattern.children[0].children[1].eql?(pattern.children[1]), false)
     pattern.fix_identities()
     assert pattern.children[0].children[1].eql? pattern.children[1]
   end
