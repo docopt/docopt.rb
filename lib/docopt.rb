@@ -2,9 +2,11 @@ module Docopt
   VERSION = '0.5.0'
 end
 module Docopt
+  # Error in construction of usage-message by developer.
   class DocoptLanguageError < SyntaxError
   end
 
+  # Exit in case user invoked program with incorrect arguments.
   class Exit < RuntimeError
     def self.usage
       @@usage
@@ -44,6 +46,7 @@ module Docopt
       return self
     end
 
+    # Make pattern-tree tips point to same object if they are equal
     def fix_identities(uniq=nil)
       if not instance_variable_defined?(:@children)
         return self
@@ -62,6 +65,7 @@ module Docopt
       end
     end
 
+    # Find arguments that should accumulate values and fix them.
     def fix_list_arguments
       either.children.map { |c| c.children }.each do |case_|
         case_.select { |c| case_.count(c) > 1 }.each do |e|
@@ -77,7 +81,10 @@ module Docopt
       return self
     end
 
+    # Transform pattern into an equivalent, with only top-level Either.
     def either
+      # Currently the pattern will not be equivalent, but more "narrow",
+      # although good enough to reason about list arguments.
       ret = []
       groups = [[self]]
       while groups.count > 0
