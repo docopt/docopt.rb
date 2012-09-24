@@ -39,6 +39,7 @@ class DocoptRbTest < Test::Unit::TestCase
     assert !options['-r']
     assert_equal ".svn,CVS,.bzr,.hg,.git", options['--exclude']
     assert_equal "*.rb", options['--file']
+#    assert_equal "*.rb", options['-f']
     assert !options['--select']
     assert !options['--ignore']
     assert !options['--show-source']
