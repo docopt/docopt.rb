@@ -533,7 +533,7 @@ def test_bug_option_argument_should_not_capture_default_value_from_pattern
     assert_equal({'-v' => 2}, docopt('usage: prog [-vv]', '-vv'))
 
     assert_raise(Docopt::Exit) {
-      assert_equal docopt('usage: prog [-vv]', '-vvv')
+      docopt('usage: prog [-vv]', '-vvv')
     }
 
     assert_equal({'-v' => 3}, docopt('usage: prog [-v | -vv | -vvv]', '-vvv'))
@@ -548,7 +548,7 @@ def test_bug_option_argument_should_not_capture_default_value_from_pattern
     assert_equal({'go' => 2}, docopt('usage: prog [go go]', 'go go'))
 
     assert_raise(Docopt::Exit) {
-      assert docopt('usage: prog [go go]', 'go go go')  ## WTF ???!!!
+      docopt('usage: prog [go go]', 'go go go')  ## WTF ???!!!
     }
     assert_equal({'go' => 5}, docopt('usage: prog go...', 'go go go go go'))
   end
