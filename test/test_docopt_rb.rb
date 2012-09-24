@@ -11,11 +11,9 @@ class DocoptRbTest < Test::Unit::TestCase
   end
 
   def get_options(argv=[])
-    begin
-      Docopt.docopt($DOC, { :argv => argv })
-    rescue SystemExit => ex
-      nil
-    end
+    Docopt.docopt($DOC, { :argv => argv })
+  rescue SystemExit => ex
+    nil
   end
 
   def test_size
