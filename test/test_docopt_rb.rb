@@ -1,17 +1,19 @@
 require 'test/unit'
+require 'stringio'
 
 class DocoptRbTest < Test::Unit::TestCase
   def setup
-    $LOAD_PATH << File.dirname(__FILE__)
-    load 'example.rb'
+    orig_stdout, orig_stderr = $stdout, $stderr
+    $stdout, $stderr = StringIO.new, StringIO.new
+    load File.expand_path('../../examples/example_options.rb', __FILE__)
+  ensure
+    $stdout, $stderr = orig_stdout, orig_stderr
   end
 
   def get_options(argv=[])
-    begin
-      Docopt($DOC, { :argv => argv })
-    rescue SystemExit => ex
-      nil
-    end
+    Docopt.docopt($DOC, { :argv => argv })
+  rescue SystemExit => ex
+    nil
   end
 
   def test_size
@@ -36,7 +38,8 @@ class DocoptRbTest < Test::Unit::TestCase
     assert !options['--repeat']
     assert !options['-r']
     assert_equal ".svn,CVS,.bzr,.hg,.git", options['--exclude']
-    assert_equal "*.rb", options['--filename']
+    assert_equal "*.rb", options['--file']
+#    assert_equal "*.rb", options['-f']
     assert !options['--select']
     assert !options['--ignore']
     assert !options['--show-source']
