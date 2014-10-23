@@ -635,7 +635,7 @@ module Docopt
 
     def docopt(doc, params={})
       default = {:version => nil, :argv => nil, :help => true}
-      params = default.merge(params)
+      params = default.merge(params.inject({}){|tmp,(k,v)| tmp[k.to_sym] = v; tmp})
       params[:argv] = ARGV if !params[:argv]
 
       Exit.set_usage(printable_usage(doc))
