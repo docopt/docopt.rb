@@ -13,8 +13,8 @@ Gem::Specification.new do |s|
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
   s.name              = 'docopt'
-  s.version           = '0.5.0'
-  s.date              = '2012-09-01'
+  s.version           = '0.6.0'
+  s.date              = '2016-10-03'
   # s.rubyforge_project = 'docopt'
 
   ## Make sure your summary is short. The description may be as long
@@ -72,7 +72,9 @@ Gem::Specification.new do |s|
     examples/odd_even_example.rb
     examples/quick_example.rb
     lib/docopt.rb
+    test/language_agnostic_tester.py
     test/test_docopt.rb
+    test/testcases.docopt
     test/testee.rb
   ]
   # = MANIFEST =
