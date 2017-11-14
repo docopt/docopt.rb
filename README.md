@@ -104,6 +104,9 @@ version of your program. If supplied, then, if the parser encounters
 `version` could be any printable object, but most likely a string,
 e.g. `'2.1.0rc1'`.
 
+- `argv`, by default `nil`, is an optional argument that passes array of 
+strings to `docopt`; by default, `ARGV` is used.
+
 Note, when `docopt` is set to automatically handle `-h`, `--help` and
 `--version` options, you still need to mention them in the options description
 (`doc`) for your users to know about them.
