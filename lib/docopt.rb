@@ -356,9 +356,9 @@ module Docopt
       collected ||= []
       outcomes = []
       for p in self.children
-        matched, _, _ = outcome = p.match(left, collected)
+        matched, _, _ = found = p.match(left, collected)
         if matched
-          outcomes << outcome
+          outcomes << found
         end
       end
 
