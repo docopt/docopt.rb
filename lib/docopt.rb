@@ -86,31 +86,31 @@ module Docopt
       groups = [[self]]
       while groups.count > 0
         children = groups.shift
-        types = children.map { |c| c.class }
+        types = children.map { |child| child.class }
 
         if types.include?(Either)
-          either = children.select { |c| c.class == Either }[0]
+          either = children.select { |child| child.class == Either }[0]
           children.slice!(children.index(either))
           for c in either.children
             groups << [c] + children
           end
         elsif types.include?(Required)
-          required = children.select { |c| c.class == Required }[0]
+          required = children.select { |child| child.class == Required }[0]
           children.slice!(children.index(required))
           groups << required.children + children
 
         elsif types.include?(Optional)
-          optional = children.select { |c| c.class == Optional }[0]
+          optional = children.select { |child| child.class == Optional }[0]
           children.slice!(children.index(optional))
           groups << optional.children + children
 
         elsif types.include?(AnyOptions)
-          anyoptions = children.select { |c| c.class == AnyOptions }[0]
+          anyoptions = children.select { |child| child.class == AnyOptions }[0]
           children.slice!(children.index(anyoptions))
           groups << anyoptions.children + children
 
         elsif types.include?(OneOrMore)
-          oneormore = children.select { |c| c.class == OneOrMore }[0]
+          oneormore = children.select { |child| child.class == OneOrMore }[0]
           children.slice!(children.index(oneormore))
           groups << (oneormore.children * 2) + children
 
