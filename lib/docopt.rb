@@ -314,7 +314,7 @@ module Docopt
     def match(left, collected=nil)
       collected ||= []
       for p in self.children
-        m, left, collected = p.match(left, collected)
+        _, left, collected = p.match(left, collected)
       end
       return [true, left, collected]
     end
