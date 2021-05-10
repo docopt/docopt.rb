@@ -18,8 +18,13 @@ module Docopt
       @@message
     end
 
-    def initialize(message='')
+    def initialize(message='', error=true)
       @@message = (message + "\n" + @@usage).strip
+      @error = error
+    end
+
+    def error?
+      !!@error
     end
   end
 
@@ -634,11 +639,11 @@ module Docopt
     def extras(help, version, options, doc)
       if help and options.any? { |o| ['-h', '--help'].include?(o.name) && o.value }
         Exit.set_usage(nil)
-        raise Exit, doc.strip
+        raise Exit.new(doc.strip, false)
       end
       if version and options.any? { |o| o.name == '--version' && o.value }
         Exit.set_usage(nil)
-        raise Exit, version
+        raise Exit.new(version, false)
       end
     end
 
