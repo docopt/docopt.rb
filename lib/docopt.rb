@@ -579,7 +579,7 @@ module Docopt
     end
 
     def printable_usage(doc)
-      usage_split = doc.split(/([Uu][Ss][Aa][Gg][Ee]:)/)
+      usage_split = doc.split(/(Usage:)/i)
       if usage_split.count < 3
         raise DocoptLanguageError, '"usage:" (case-insensitive) not found.'
       end
